@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { logger, logAuthEvent } from '@/lib/logger';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email');
@@ -87,7 +87,7 @@ export default function VerifyEmailPage() {
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Check Your Email</h1>
           <p className="text-gray-600">
-            We've sent a verification email to
+            We&apos;ve sent a verification email to
           </p>
           {email && (
             <p className="text-gray-900 font-semibold mt-1">{email}</p>
@@ -114,7 +114,7 @@ export default function VerifyEmailPage() {
             <ol className="list-decimal list-inside text-sm text-blue-700 mt-2 space-y-1">
               <li>Check your email inbox (and spam folder)</li>
               <li>Click the verification link in the email</li>
-              <li>You'll be automatically logged in</li>
+              <li>You&apos;ll be automatically logged in</li>
             </ol>
           </div>
 
@@ -136,5 +136,26 @@ export default function VerifyEmailPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex items-center justify-center px-4 py-12">
+        <div className="max-w-md w-full bg-white/80 backdrop-blur-sm rounded-2xl shadow-soft-lg p-8 border border-gray-100">
+          <div className="text-center">
+            <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 animate-pulse">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Loading...</h1>
+          </div>
+        </div>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }

@@ -67,6 +67,9 @@ export default function RegisterPage() {
     setStatus('Validating form...');
 
     try {
+      // Step 1: Validate form data first
+      const validated = registerSchema.parse(formData);
+      
       // CRITICAL FIX #7: Rate limiting
       // Note: In production, this should be done at the edge/server level
       // Using email as key (IP-based rate limiting should be server-side)
@@ -83,10 +86,7 @@ export default function RegisterPage() {
         return;
       }
 
-      logAuthEvent({ event: 'registration_started', email: formData.email });
-      
-      // Step 1: Validate form data
-      const validated = registerSchema.parse(formData);
+      logAuthEvent({ event: 'registration_started', email: validated.email });
       setStatus('Creating account...');
       
       // Step 2: Create Supabase client
