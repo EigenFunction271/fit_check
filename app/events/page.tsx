@@ -43,18 +43,18 @@ export default async function EventsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">Workout Events</h1>
-            <p className="text-gray-600">Book your next fitness session</p>
+            <h1 className="text-5xl font-extrabold text-gray-900 mb-2">Workout Events</h1>
+            <p className="text-lg text-gray-600">Book your next fitness session</p>
           </div>
           <Link
             href="/dashboard"
-            className="bg-indigo-600 text-white px-6 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
+            className="px-6 py-3 bg-white/80 backdrop-blur-sm text-indigo-600 rounded-xl font-semibold border-2 border-indigo-200 hover:border-indigo-300 hover:bg-indigo-50 transition-all duration-300 shadow-sm hover:shadow-md"
           >
-            Back to Dashboard
+            ← Dashboard
           </Link>
         </div>
 
@@ -76,11 +76,11 @@ export default async function EventsPage() {
                 <div
                   key={event.id}
                   id={`event-${event.id}`}
-                  className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+                  className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-soft p-6 hover:shadow-soft-lg transition-all duration-300 border border-gray-100 hover:border-indigo-200 transform hover:-translate-y-1"
                 >
-                  <div className="flex justify-between items-start mb-3">
-                    <h3 className="text-xl font-semibold text-indigo-600">{event.title}</h3>
-                    <span className="px-2 py-1 text-xs font-semibold rounded bg-indigo-100 text-indigo-800">
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-xl font-bold text-indigo-600 pr-2">{event.title}</h3>
+                    <span className="px-3 py-1 text-xs font-bold rounded-full bg-gradient-to-r from-indigo-100 to-purple-100 text-indigo-700 border border-indigo-200">
                       {event.event_type}
                     </span>
                   </div>
@@ -124,17 +124,17 @@ export default async function EventsPage() {
 
                   <div className="mt-4">
                     {isBooked ? (
-                      <div className="bg-green-100 text-green-800 px-4 py-2 rounded text-center font-medium">
+                      <div className="bg-gradient-to-r from-green-50 to-emerald-50 text-green-700 px-4 py-3 rounded-xl text-center font-semibold border border-green-200">
                         ✓ You&apos;re booked!
                       </div>
                     ) : isFull ? (
-                      <div className="bg-gray-100 text-gray-800 px-4 py-2 rounded text-center font-medium">
+                      <div className="bg-gray-50 text-gray-600 px-4 py-3 rounded-xl text-center font-semibold border border-gray-200">
                         Fully booked
                       </div>
                     ) : (
                       <Link
                         href={`/events/book/${event.id}`}
-                        className="block w-full bg-indigo-600 text-white px-4 py-2 rounded text-center hover:bg-indigo-700 transition-colors font-medium"
+                        className="block w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white px-4 py-3 rounded-xl text-center hover:from-indigo-700 hover:to-purple-700 transition-all duration-300 font-semibold shadow-lg shadow-indigo-500/30 hover:shadow-xl hover:shadow-indigo-500/40 transform hover:-translate-y-0.5"
                       >
                         Book Now
                       </Link>
