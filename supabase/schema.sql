@@ -94,12 +94,20 @@ begin
   values (
     new.id,
     new.email,
-    coalesce(new.raw_user_meta_data->>'name', ''),
+    coalesce(new.raw_user_meta_data->>'name', 'User'),
     nullif(new.raw_user_meta_data->>'phone_number', ''),
     nullif(new.raw_user_meta_data->>'id_number', ''),
     coalesce((new.raw_user_meta_data->>'role')::user_role, 'participant')
-  );
+  )
+  on conflict (id) do nothing;  -- Prevent errors if profile already exists
   return new;
+exception
+  when others then
+    -- Log the error for debugging (check Supabase Postgres Logs)
+    raise warning 'Error in handle_new_user for user %: %', new.id, SQLERRM;
+    -- Still return new to allow auth.users creation to succeed
+    -- The fallback code in the app will handle profile creation if trigger fails
+    return new;
 end;
 $$ language plpgsql security definer;
 
@@ -127,16 +135,29 @@ create policy "Users can update their own profile"
 
 create policy "Users can insert their own profile"
   on public.users for insert
-  with check (auth.uid() = id);
+  with check (
+    auth.uid() IS NOT NULL 
+    AND auth.uid() = id
+    AND NOT EXISTS (
+      -- Prevent duplicate inserts (idempotency)
+      SELECT 1 FROM public.users WHERE id = auth.uid()
+    )
+  );
+
+-- Helper function to check if current user is admin (bypasses RLS)
+create or replace function public.is_admin()
+returns boolean as $$
+begin
+  return exists (
+    select 1 from public.users
+    where id = auth.uid() and role = 'admin'
+  );
+end;
+$$ language plpgsql security definer stable;
 
 create policy "Admins can view all users"
   on public.users for select
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Note: The trigger function handle_new_user() uses security definer
 -- which bypasses RLS. However, if the trigger fails (e.g., on localhost),
@@ -149,30 +170,15 @@ create policy "Anyone can view events"
 
 create policy "Admins can create events"
   on public.events for insert
-  with check (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  with check (public.is_admin());
 
 create policy "Admins can update events"
   on public.events for update
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 create policy "Admins can delete events"
   on public.events for delete
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Bookings policies
 create policy "Users can view their own bookings"
@@ -189,12 +195,7 @@ create policy "Users can update their own bookings"
 
 create policy "Admins can view all bookings"
   on public.bookings for select
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Health Metrics policies
 create policy "Users can view their own health metrics"
@@ -211,12 +212,7 @@ create policy "Users can update their own health metrics"
 
 create policy "Admins can view all health metrics"
   on public.health_metrics for select
-  using (
-    exists (
-      select 1 from public.users
-      where id = auth.uid() and role = 'admin'
-    )
-  );
+  using (public.is_admin());
 
 -- Indexes for better query performance
 create index idx_bookings_user_id on public.bookings(user_id);
