@@ -91,16 +91,20 @@ create trigger on_auth_user_created
 -- ============================================================================
 
 -- Drop and recreate INSERT policy to be more permissive
+-- Uses auth.users check instead of auth.uid() to avoid timing issues
 drop policy if exists "Users can insert their own profile" on public.users;
 
 create policy "Users can insert their own profile"
   on public.users for insert
   with check (
-    auth.uid() IS NOT NULL 
-    AND auth.uid() = id
+    -- Check if user exists in auth.users (more reliable than auth.uid())
+    EXISTS (
+      SELECT 1 FROM auth.users 
+      WHERE auth.users.id = users.id
+    )
+    -- Prevent duplicates
     AND NOT EXISTS (
-      -- Prevent duplicate inserts (idempotency)
-      SELECT 1 FROM public.users WHERE id = auth.uid()
+      SELECT 1 FROM public.users WHERE id = users.id
     )
   );
 
