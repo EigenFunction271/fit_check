@@ -32,3 +32,17 @@ export interface Booking {
     instructor_name: string | null;
   };
 }
+
+export interface Event {
+  id: string;
+  title: string;
+  description: string | null;
+  date_time: string;
+  duration: number;
+  max_capacity: number;
+  event_type: 'cardio' | 'strength' | 'yoga' | 'pilates' | 'crossfit' | 'other';
+  location: string | null;
+  instructor_name: string | null;
+  created_at: string;
+  updated_at: string;
+}

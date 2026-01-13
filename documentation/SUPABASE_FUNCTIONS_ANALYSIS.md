@@ -22,19 +22,19 @@ This document analyzes all Supabase database functions in the codebase and ident
 **Location:** Referenced in `lib/api/bookings.ts` but not in `supabase/schema.sql`
 
 **Problem:**
-- The function is defined in `supabase/fix_critical_issues.sql` but not in the main schema
+- The function is now defined in `supabase/schema.sql` (was previously in a separate fix file)
 - If schema is applied fresh, the function won't exist
 - Application will fail when trying to create bookings
 
 **Current State:**
 ```sql
--- Only exists in fix_critical_issues.sql, not in schema.sql
+-- Now included in schema.sql
 create or replace function public.create_booking_safe(...)
 ```
 
 **Fix Required:**
 - Add `create_booking_safe` function to `supabase/schema.sql`
-- Or ensure `fix_critical_issues.sql` is always run after schema
+- The function is now included in `schema.sql`, so no separate fix file is needed
 
 **Impact:** Application crashes when users try to book events
 
@@ -325,9 +325,9 @@ create index idx_bookings_status on public.bookings(status);
 ```
 
 **Fix Required:**
-Add composite indexes (or verify existing ones from fix_critical_issues.sql):
+Add composite indexes (now included in schema.sql):
 ```sql
--- From fix_critical_issues.sql (should be in schema.sql)
+-- Now included in schema.sql
 create unique index idx_bookings_user_event_confirmed 
 on public.bookings(user_id, event_id) 
 where status = 'confirmed';
@@ -442,7 +442,6 @@ create or replace function public.create_booking_safe(...)
 
 ## Related Files
 
-- `supabase/schema.sql` - Main schema (missing create_booking_safe)
-- `supabase/fix_critical_issues.sql` - Contains create_booking_safe definition
+- `supabase/schema.sql` - Main schema (includes create_booking_safe function)
 - `lib/api/bookings.ts` - Uses create_booking_safe
-- `documentation/RLS_ISSUES_ANALYSIS.md` - Related RLS issues
+- `documentation/SUPABASE_DEPLOYMENT.md` - Complete Supabase setup guide including RLS fixes

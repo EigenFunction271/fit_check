@@ -16,7 +16,7 @@ Fixed 3 critical issues identified in the Supabase functions analysis:
 
 ### 1. Added `create_booking_safe` Function to schema.sql
 
-**Issue:** Function was only in `fix_critical_issues.sql`, causing failures when schema is applied fresh.
+**Issue:** Function was previously only in a separate fix file, but is now integrated into `schema.sql`.
 
 **Fix:** Added complete function definition to `supabase/schema.sql` with all security and performance improvements.
 
@@ -146,7 +146,7 @@ grant execute on function public.is_admin_user(uuid) to authenticated;
 
 ### 6. Added Performance Indexes
 
-**Added indexes from `fix_critical_issues.sql`:**
+**Added indexes (now in schema.sql):**
 
 ```sql
 -- Partial unique index to prevent multiple confirmed bookings
@@ -235,7 +235,7 @@ alter table public.events
 ## Related Documentation
 
 - `documentation/SUPABASE_FUNCTIONS_ANALYSIS.md` - Original analysis
-- `supabase/fix_critical_issues.sql` - Original fix file (now integrated into schema.sql)
+- All fixes are now integrated into `supabase/schema.sql`
 
 ---
 

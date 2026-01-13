@@ -460,21 +460,17 @@ Check that your app can talk to the database:
 
 **Error: "infinite recursion detected in policy for relation users"**
 - ✅ **CRITICAL**: This must be fixed first! It prevents all RLS policies from working
-- ✅ **Quick Fix**: Run `supabase/fix_infinite_recursion.sql` in Supabase SQL Editor
-- ✅ **Detailed Guide**: See `documentation/FIX_INFINITE_RECURSION.md`
+- ✅ **Quick Fix**: Run `supabase/FIX_ALL_RLS_ISSUES.sql` in Supabase SQL Editor
+- ✅ **Detailed Guide**: See `documentation/SUPABASE_DEPLOYMENT.md` (Step 3: Configure Row-Level Security)
 - ✅ **Cause**: Admin policies query the users table, which triggers the policy again → infinite loop
 - ✅ **Solution**: Use a `security definer` helper function that bypasses RLS
 
 **Error: "new row violates row-level security policy for table users"**
 - ✅ This means the database trigger failed and the fallback insert was blocked by RLS
-- ✅ **EASIEST FIX**: Run `supabase/COMPLETE_FIX.sql` - fixes everything at once!
-- ✅ **OR fix step-by-step**:
-  1. If you see "infinite recursion": Run `supabase/fix_infinite_recursion.sql` FIRST
-  2. Then run `supabase/fix_insert_policy.sql` (more permissive INSERT policy)
-  3. Or run `supabase/fix_rls_trigger.sql` (complete trigger + policy fix)
-- ✅ **Detailed Guide**: See `documentation/FIX_RLS_POLICY_ERROR.md`
+- ✅ **FIX**: Run `supabase/FIX_ALL_RLS_ISSUES.sql` - fixes everything at once!
+- ✅ **Detailed Guide**: See `documentation/SUPABASE_DEPLOYMENT.md` (Step 3: Configure Row-Level Security)
 - ✅ Common causes:
-  - Infinite recursion error preventing policies from working (fix first!)
+  - Infinite recursion error preventing policies from working
   - INSERT policy too strict (doesn't allow fallback registration)
   - Trigger function missing `security definer`
   - Trigger not enabled
